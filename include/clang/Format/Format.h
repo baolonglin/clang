@@ -1123,7 +1123,9 @@ struct FormatStyle {
     LK_TableGen,
     /// Should be used for Protocol Buffer messages in text format
     /// (https://developers.google.com/protocol-buffers/).
-    LK_TextProto
+    LK_TextProto //,
+    /// Should be used for TTCN
+    //LK_Ttcn
   };
   bool isCpp() const { return Language == LK_Cpp || Language == LK_ObjC; }
 
@@ -1466,6 +1468,19 @@ struct FormatStyle {
   /// \brief The way to use tab characters in the resulting file.
   UseTabStyle UseTab;
 
+  /// \brief Support ttcn language
+  /// assignment support :=
+  /// string wrap support "xxx" & "yyy" (not perfect)
+  /// pointer has special meaning (->)
+  /// break the question(?) meaning, use it as Identifiers
+  /// break the module(module, which used by c++11) meaning, use it as namespace
+  /// break the Character constants meaning('), use it as String Literals, support string suffix 'B, 'O, 'H
+  bool TtcnExtension;
+
+  /// \brief experimental ttcn extension
+  /// Break the first wrap curve bracket
+  bool ExperimentalTtcnExtension;
+
   bool operator==(const FormatStyle &R) const {
     return AccessModifierOffset == R.AccessModifierOffset &&
            AlignAfterOpenBracket == R.AlignAfterOpenBracket &&
@@ -1527,8 +1542,7 @@ struct FormatStyle {
            ObjCBlockIndentWidth == R.ObjCBlockIndentWidth &&
            ObjCSpaceAfterProperty == R.ObjCSpaceAfterProperty &&
            ObjCSpaceBeforeProtocolList == R.ObjCSpaceBeforeProtocolList &&
-           PenaltyBreakAssignment ==
-               R.PenaltyBreakAssignment &&
+           PenaltyBreakAssignment == R.PenaltyBreakAssignment &&
            PenaltyBreakBeforeFirstCallParameter ==
                R.PenaltyBreakBeforeFirstCallParameter &&
            PenaltyBreakComment == R.PenaltyBreakComment &&
@@ -1549,7 +1563,8 @@ struct FormatStyle {
            SpacesInParentheses == R.SpacesInParentheses &&
            SpacesInSquareBrackets == R.SpacesInSquareBrackets &&
            Standard == R.Standard && TabWidth == R.TabWidth &&
-           UseTab == R.UseTab;
+           UseTab == R.UseTab && TtcnExtension == R.TtcnExtension &&
+           ExperimentalTtcnExtension == R.ExperimentalTtcnExtension;
   }
 };
 
@@ -1755,6 +1770,8 @@ inline StringRef getLanguageName(FormatStyle::LanguageKind Language) {
     return "Proto";
   case FormatStyle::LK_TextProto:
     return "TextProto";
+    //case FormatStyle::LK_Ttcn:
+    //return "TTCN";
   default:
     return "Unknown";
   }

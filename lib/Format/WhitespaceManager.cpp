@@ -422,19 +422,20 @@ void WhitespaceManager::alignConsecutiveAssignments() {
   if (!Style.AlignConsecutiveAssignments)
     return;
 
-  AlignTokens(Style,
-              [&](const Change &C) {
-                // Do not align on equal signs that are first on a line.
-                if (C.NewlinesBefore > 0)
-                  return false;
+  AlignTokens(Style, [&](const Change &C) {
+    // Do not align on equal signs that are first on a line.
+    if (C.NewlinesBefore > 0)
+      return false;
 
-                // Do not align on equal signs that are last on a line.
-                if (&C != &Changes.back() && (&C + 1)->NewlinesBefore > 0)
-                  return false;
+    // Do not align on equal signs that are last on a line.
+    if (&C != &Changes.back() && (&C + 1)->NewlinesBefore > 0)
+      return false;
 
-                return C.Tok->is(tok::equal);
-              },
-              Changes, /*StartAt=*/0);
+    if (Style.TtcnExtension)
+      return C.Tok->isOneOf(tok::equal, tok::colonequal);
+    else
+      return C.Tok->is(tok::equal);
+  }, Changes, /*StartAt=*/0);
 }
 
 void WhitespaceManager::alignConsecutiveDeclarations() {

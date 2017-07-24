@@ -339,7 +339,7 @@ void Parser::ParseLexedMethodDeclaration(LateParsedMethodDeclaration &LM) {
       ConsumeAnyToken();
 
       // Consume the '='.
-      assert(Tok.is(tok::equal) && "Default argument not starting with '='");
+      assert(Tok.isOneOf(tok::equal, tok::colonequal) && "Default argument not starting with '=' or ':='");
       SourceLocation EqualLoc = ConsumeToken();
 
       // The argument isn't actually potentially evaluated unless it is

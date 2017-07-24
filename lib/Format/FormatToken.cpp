@@ -69,7 +69,7 @@ bool FormatToken::isSimpleTypeSpecifier() const {
 
 TokenRole::~TokenRole() {}
 
-void TokenRole::precomputeFormattingInfos(const FormatToken *Token) {}
+void TokenRole::precomputeFormattingInfos(FormatToken *Token) {}
 
 unsigned CommaSeparatedList::formatAfterToken(LineState &State,
                                               ContinuationIndenter *Indenter,
@@ -148,7 +148,7 @@ static unsigned CodePointsBetween(const FormatToken *Begin,
   return End->TotalLength - Begin->TotalLength + Begin->ColumnWidth;
 }
 
-void CommaSeparatedList::precomputeFormattingInfos(const FormatToken *Token) {
+void CommaSeparatedList::precomputeFormattingInfos(FormatToken *Token) {
   // FIXME: At some point we might want to do this for other lists, too.
   if (!Token->MatchingParen ||
       !Token->isOneOf(tok::l_brace, TT_ArrayInitializerLSquare))
@@ -157,7 +157,7 @@ void CommaSeparatedList::precomputeFormattingInfos(const FormatToken *Token) {
   // In C++11 braced list style, we should not format in columns unless they
   // have many items (20 or more) or we allow bin-packing of function call
   // arguments.
-  if (Style.Cpp11BracedListStyle && !Style.BinPackArguments &&
+  if (Style.Cpp11BracedListStyle && !Style.BinPackArguments && !Style.ExperimentalTtcnExtension &&
       Commas.size() < 19)
     return;
 
@@ -181,6 +181,7 @@ void CommaSeparatedList::precomputeFormattingInfos(const FormatToken *Token) {
   SmallVector<unsigned, 8> EndOfLineItemLength;
 
   bool HasSeparatingComment = false;
+  bool WrapBraceAtBegining = false;
   for (unsigned i = 0, e = Commas.size() + 1; i != e; ++i) {
     // Skip comments on their own line.
     while (ItemBegin->HasUnescapedNewline && ItemBegin->isTrailingComment()) {
@@ -188,9 +189,24 @@ void CommaSeparatedList::precomputeFormattingInfos(const FormatToken *Token) {
       HasSeparatingComment = i > 0;
     }
 
-    MustBreakBeforeItem.push_back(ItemBegin->MustBreakBefore);
     if (ItemBegin->is(tok::l_brace))
+    {
       HasNestedBracedList = true;
+      if(i == 0)
+      {
+        if(Style.ExperimentalTtcnExtension) {
+          ItemBegin->MustBreakBefore = true;
+          WrapBraceAtBegining = true;
+          Token -> MustBreakBefore = true;
+        }
+        else {
+          if (Style.Cpp11BracedListStyle &&
+              !Style.BinPackArguments && Commas.size() < 19)
+            return;
+        }
+      }
+    }
+    MustBreakBeforeItem.push_back(ItemBegin->MustBreakBefore);
     const FormatToken *ItemEnd = nullptr;
     if (i == Commas.size()) {
       ItemEnd = Token->MatchingParen;
@@ -202,9 +218,13 @@ void CommaSeparatedList::precomputeFormattingInfos(const FormatToken *Token) {
         // tokens will need to stay on a line with the last element.
         while (ItemEnd->Next && !ItemEnd->Next->CanBreakBefore)
           ItemEnd = ItemEnd->Next;
+        if (Style.ExperimentalTtcnExtension && WrapBraceAtBegining) {
+          ItemEnd->Previous->MustBreakBefore = true;
+        }
       } else {
         // In other braced lists styles, the "}" can be wrapped to the new line.
         ItemEnd = Token->MatchingParen->Previous;
+
       }
     } else {
       ItemEnd = Commas[i];

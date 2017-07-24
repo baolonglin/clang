@@ -57,6 +57,7 @@ template <> struct ScalarEnumerationTraits<FormatStyle::LanguageKind> {
     IO.enumCase(Value, "Proto", FormatStyle::LK_Proto);
     IO.enumCase(Value, "TableGen", FormatStyle::LK_TableGen);
     IO.enumCase(Value, "TextProto", FormatStyle::LK_TextProto);
+    //IO.enumCase(Value, "Ttcn", FormatStyle::LK_Ttcn);
   }
 };
 
@@ -398,6 +399,9 @@ template <> struct MappingTraits<FormatStyle> {
     IO.mapOptional("Standard", Style.Standard);
     IO.mapOptional("TabWidth", Style.TabWidth);
     IO.mapOptional("UseTab", Style.UseTab);
+    IO.mapOptional("TtcnExtension", Style.TtcnExtension);
+    IO.mapOptional("ExperimentalTtcnExtension",
+                   Style.ExperimentalTtcnExtension);
   }
 };
 
@@ -627,6 +631,9 @@ FormatStyle getLLVMStyle() {
   LLVMStyle.DisableFormat = false;
   LLVMStyle.SortIncludes = true;
   LLVMStyle.SortUsingDeclarations = true;
+
+  LLVMStyle.TtcnExtension = false;
+  LLVMStyle.ExperimentalTtcnExtension = false;
 
   return LLVMStyle;
 }
@@ -2027,6 +2034,8 @@ static FormatStyle::LanguageKind getLanguageByFileName(StringRef FileName) {
     return FormatStyle::LK_Proto;
   if (FileName.endswith_lower(".td"))
     return FormatStyle::LK_TableGen;
+  //if (FileName.endswith_lower(".ttcn"))
+  //  return FormatStyle::LK_Ttcn;
   return FormatStyle::LK_Cpp;
 }
 

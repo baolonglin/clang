@@ -76,6 +76,7 @@ TYPE("assembler-with-cpp",       Asm,          PP_Asm,          "S",     "au")
 TYPE("f95",                      PP_Fortran,   INVALID,         nullptr, "u")
 TYPE("f95-cpp-input",            Fortran,      PP_Fortran,      nullptr, "u")
 TYPE("java",                     Java,         INVALID,         nullptr, "u")
+//TYPE("ttcn",                     Ttcn,         INVALID,         "ttcn",  "u")
 
 // LLVM IR/LTO types. We define separate types for IR and LTO because LTO
 // outputs should use the standard suffixes.

@@ -219,6 +219,8 @@ BreakableStringLiteral::getSplit(unsigned LineIndex, unsigned TailOffset,
 void BreakableStringLiteral::insertBreak(unsigned LineIndex,
                                          unsigned TailOffset, Split Split,
                                          WhitespaceManager &Whitespaces) {
+  if (Style.TtcnExtension)
+    Prefix = "& \""; // change the prefix for ttcn
   Whitespaces.replaceWhitespaceInToken(
       Tok, Prefix.size() + TailOffset + Split.first, Split.second, Postfix,
       Prefix, InPPDirective, 1, StartColumn);

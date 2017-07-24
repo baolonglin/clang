@@ -535,7 +535,7 @@ public:
 
   /// \brief After the \c TokenAnnotator has finished annotating all the tokens,
   /// this function precomputes required information for formatting.
-  virtual void precomputeFormattingInfos(const FormatToken *Token);
+  virtual void precomputeFormattingInfos(FormatToken *Token);
 
   /// \brief Apply the special formatting that the given role demands.
   ///
@@ -569,7 +569,7 @@ public:
   CommaSeparatedList(const FormatStyle &Style)
       : TokenRole(Style), HasNestedBracedList(false) {}
 
-  void precomputeFormattingInfos(const FormatToken *Token) override;
+  void precomputeFormattingInfos(FormatToken *Token) override;
 
   unsigned formatAfterToken(LineState &State, ContinuationIndenter *Indenter,
                             bool DryRun) override;

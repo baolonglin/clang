@@ -1983,7 +1983,7 @@ bool Lexer::LexCharConstant(Token &Result, const char *CurPtr,
 
   // If we are in C++11, lex the optional ud-suffix.
   if (getLangOpts().CPlusPlus)
-    CurPtr = LexUDSuffix(Result, CurPtr, false);
+    CurPtr = LexUDSuffix(Result, CurPtr, true);
 
   // If a nul character existed in the character, warn about it.
   if (NulCharacter && !isLexingRawMode())
@@ -3260,7 +3260,7 @@ LexNextToken:
   case 'h': case 'i': case 'j': case 'k': case 'l': case 'm': case 'n':
   case 'o': case 'p': case 'q': case 'r': case 's': case 't':    /*'u'*/
   case 'v': case 'w': case 'x': case 'y': case 'z':
-  case '_':
+  case '_': case '?':
     // Notify MIOpt that we read a non-whitespace/non-comment token.
     MIOpt.ReadToken();
     return LexIdentifier(Result, CurPtr);
@@ -3290,9 +3290,9 @@ LexNextToken:
     return LexStringLiteral(Result, CurPtr, tok::string_literal);
 
   // C99 6.4.6: Punctuators.
-  case '?':
-    Kind = tok::question;
-    break;
+  //case '?':
+  //  Kind = tok::question;
+  //  break;
   case '[':
     Kind = tok::l_square;
     break;
@@ -3597,6 +3597,9 @@ LexNextToken:
     } else if (LangOpts.CPlusPlus && Char == ':') {
       Kind = tok::coloncolon;
       CurPtr = ConsumeChar(CurPtr, SizeTmp, Result);
+    } else if (LangOpts.CPlusPlus && Char == '=') {
+      Kind = tok::colonequal;
+      CurPtr = ConsumeChar(CurPtr, SizeTmp, Result);
     } else {
       Kind = tok::colon;
     }
@@ -3610,7 +3613,7 @@ LexNextToken:
       // If this is '====' and we're in a conflict marker, ignore it.
       if (CurPtr[1] == '=' && HandleEndOfConflictMarker(CurPtr-1))
         goto LexNextToken;
-      
+
       Kind = tok::equalequal;
       CurPtr = ConsumeChar(CurPtr, SizeTmp, Result);
     } else {

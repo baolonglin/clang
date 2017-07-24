@@ -93,6 +93,7 @@ LANGOPT(CPlusPlus1z       , 1, 0, "C++1z")
 LANGOPT(CPlusPlus2a       , 1, 0, "C++2a")
 LANGOPT(ObjC1             , 1, 0, "Objective-C 1")
 LANGOPT(ObjC2             , 1, 0, "Objective-C 2")
+//LANGOPT(Ttcn              , 1, 0, "TTCN")
 BENIGN_LANGOPT(ObjCDefaultSynthProperties , 1, 0,
                "Objective-C auto-synthesized properties")
 BENIGN_LANGOPT(EncodeExtendedBlockSig , 1, 0,

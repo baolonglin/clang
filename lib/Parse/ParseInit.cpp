@@ -87,7 +87,7 @@ bool Parser::MayBeDesignationStart() {
   // FIXME: If we didn't skip any inits, parse the lambda from here
   // rather than throwing away then reparsing the LambdaIntroducer.
   Tentative.Revert();
-  return Kind == tok::equal;
+  return Kind == tok::equal || Kind == tok::colonequal;
 }
 
 static void CheckArrayDesignatorSyntax(Parser &P, SourceLocation Loc,

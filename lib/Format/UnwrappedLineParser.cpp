@@ -568,6 +568,8 @@ static bool ShouldBreakBeforeBrace(const FormatStyle &Style,
                                    const FormatToken &InitialToken) {
   if (InitialToken.is(tok::kw_namespace))
     return Style.BraceWrapping.AfterNamespace;
+  if (InitialToken.is(tok::kw_module) && Style.TtcnExtension)
+    return Style.BraceWrapping.AfterNamespace;
   if (InitialToken.is(tok::kw_class))
     return Style.BraceWrapping.AfterClass;
   if (InitialToken.is(tok::kw_union))
@@ -763,7 +765,8 @@ static bool tokenCanStartNewLine(const clang::Token &Tok) {
          // first token in an unwrapped line.
          Tok.isNot(tok::colon) &&
          // 'noexcept' is a trailing annotation.
-         Tok.isNot(tok::kw_noexcept);
+         Tok.isNot(tok::kw_noexcept) &&
+    Tok.isNot(tok::colonequal);
 }
 
 static bool mustBeJSIdent(const AdditionalKeywords &Keywords,
@@ -926,6 +929,12 @@ void UnwrappedLineParser::parseStructuralElement() {
   case tok::kw_namespace:
     parseNamespace();
     return;
+  case tok::kw_module:
+    if (Style.TtcnExtension) {
+      parseNamespace();
+      return;
+    }
+    break;
   case tok::kw_inline:
     nextToken();
     if (FormatTok->Tok.is(tok::kw_namespace)) {
@@ -1085,6 +1094,11 @@ void UnwrappedLineParser::parseStructuralElement() {
         // JavaScript only has pseudo keywords, all keywords are allowed to
         // appear in "IdentifierName" positions. See http://es5.github.io/#x7.6
         nextToken();
+      break;
+    case tok::arrow:
+      if (Style.TtcnExtension)
+        FormatTok->Type = TT_LambdaArrow;
+      nextToken();
       break;
     case tok::semi:
       nextToken();
@@ -1675,7 +1689,7 @@ void UnwrappedLineParser::parseTryCatch() {
 }
 
 void UnwrappedLineParser::parseNamespace() {
-  assert(FormatTok->Tok.is(tok::kw_namespace) && "'namespace' expected");
+  assert(FormatTok->Tok.isOneOf(tok::kw_namespace, tok::kw_module) && "'namespace' or 'module' expected");
 
   const FormatToken &InitialToken = *FormatTok;
   nextToken();

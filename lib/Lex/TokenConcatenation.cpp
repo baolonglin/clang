@@ -103,6 +103,9 @@ TokenConcatenation::TokenConcatenation(Preprocessor &pp) : PP(pp) {
   if (PP.getLangOpts().CPlusPlus1z)
     TokenInfo[tok::utf8_char_constant] |= aci_custom;
 
+  //if (PP.getLangOpts().Ttcn)
+    TokenInfo[tok::colon] |= aci_avoid_equal;                // :=
+
   // These tokens change behavior if followed by an '='.
   TokenInfo[tok::amp         ] |= aci_avoid_equal;           // &=
   TokenInfo[tok::plus        ] |= aci_avoid_equal;           // +=
@@ -117,7 +120,8 @@ TokenConcatenation::TokenConcatenation(Preprocessor &pp) : PP(pp) {
   TokenInfo[tok::lessless    ] |= aci_avoid_equal;           // <<=
   TokenInfo[tok::greatergreater] |= aci_avoid_equal;         // >>=
   TokenInfo[tok::caret       ] |= aci_avoid_equal;           // ^=
-  TokenInfo[tok::equal       ] |= aci_avoid_equal;           // ==
+  TokenInfo[tok::equal] |= aci_avoid_equal;                  // ==
+
 }
 
 /// GetFirstChar - Get the first character of the token \arg Tok,
@@ -178,7 +182,7 @@ bool TokenConcatenation::AvoidConcat(const Token &PrevPrevTok,
 
   if (ConcatInfo & aci_avoid_equal) {
     // If the next token is '=' or '==', avoid concatenation.
-    if (Tok.isOneOf(tok::equal, tok::equalequal))
+    if (Tok.isOneOf(tok::equal, tok::equalequal, tok::colonequal))
       return true;
     ConcatInfo &= ~aci_avoid_equal;
   }

@@ -1783,6 +1783,7 @@ bool Parser::MightBeDeclarator(unsigned Context) {
     case tok::r_paren:
     case tok::r_square:
     case tok::semi:
+    case tok::colonequal:
       return true;
 
     case tok::colon:
@@ -2391,7 +2392,7 @@ void Parser::ParseSpecifierQualifierList(DeclSpec &DS, AccessSpecifier AS,
 static bool isValidAfterIdentifierInDeclarator(const Token &T) {
   return T.isOneOf(tok::l_square, tok::l_paren, tok::r_paren, tok::semi,
                    tok::comma, tok::equal, tok::kw_asm, tok::l_brace,
-                   tok::colon);
+                   tok::colon, tok::colonequal);
 }
 
 /// ParseImplicitInt - This method is called when we have an non-typename

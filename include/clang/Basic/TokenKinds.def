@@ -225,6 +225,11 @@ PUNCTUATOR(greatergreatergreater, ">>>")
 // CL support
 PUNCTUATOR(caretcaret,            "^^")
 
+// TTCN support
+PUNCTUATOR(colonequal,            ":=")
+PUNCTUATOR(periodperiod,          "..")
+PUNCTUATOR(equalgreater,          "=>")
+
 // C99 6.4.1: Keywords.  These turn into kw_* tokens.
 // Flags allowed:
 //   KEYALL   - This is a keyword in all variants of C and C++, or it
@@ -255,6 +260,8 @@ PUNCTUATOR(caretcaret,            "^^")
 //   BOOLSUPPORT - This is a keyword if 'bool' is a built-in type
 //   HALFSUPPORT - This is a keyword if 'half' is a built-in type
 //   WCHARSUPPORT - This is a keyword if 'wchar_t' is a built-in type
+//
+//   KEYTTCN - This is a TTCN keyword
 //
 KEYWORD(auto                        , KEYALL)
 KEYWORD(break                       , KEYALL)
@@ -337,6 +344,9 @@ KEYWORD(using                       , KEYCXX)
 KEYWORD(virtual                     , KEYCXX)
 KEYWORD(wchar_t                     , WCHARSUPPORT)
 
+// TTCN keyword
+KEYWORD(module                      , KEYCXX)
+
 // C++ 2.5p2: Alternative Representations.
 CXX_KEYWORD_OPERATOR(and     , ampamp)
 CXX_KEYWORD_OPERATOR(and_eq  , ampequal)
@@ -372,7 +382,7 @@ KEYWORD(co_return                   , KEYCOROUTINES)
 KEYWORD(co_yield                    , KEYCOROUTINES)
 
 // C++ modules TS keywords
-MODULES_KEYWORD(module)
+//MODULES_KEYWORD(module)
 MODULES_KEYWORD(import)
 
 // GNU Extensions (in impl-reserved namespace)

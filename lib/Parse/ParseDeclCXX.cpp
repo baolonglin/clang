@@ -58,7 +58,7 @@ using namespace clang;
 Parser::DeclGroupPtrTy Parser::ParseNamespace(unsigned Context,
                                               SourceLocation &DeclEnd,
                                               SourceLocation InlineLoc) {
-  assert(Tok.is(tok::kw_namespace) && "Not a namespace!");
+  assert(Tok.isOneOf(tok::kw_namespace, tok::kw_module) && "Not a namespace!");
   SourceLocation NamespaceLoc = ConsumeToken();  // eat the 'namespace'.
   ObjCDeclContextSwitch ObjCDC(*this);
     

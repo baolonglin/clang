@@ -11108,8 +11108,15 @@ BinaryOperatorKind Sema::ConvertTokenKindToBinaryOpcode(tok::TokenKind Kind) {
   case tok::pipe:                 Opc = BO_Or; break;
   case tok::ampamp:               Opc = BO_LAnd; break;
   case tok::pipepipe:             Opc = BO_LOr; break;
-  case tok::equal:                Opc = BO_Assign; break;
-  case tok::starequal:            Opc = BO_MulAssign; break;
+  case tok::equal:
+    Opc = BO_Assign;
+    break;
+  case tok::coloncolon:
+    Opc = BO_Assign;
+    break;
+  case tok::starequal:
+    Opc = BO_MulAssign;
+    break;
   case tok::slashequal:           Opc = BO_DivAssign; break;
   case tok::percentequal:         Opc = BO_RemAssign; break;
   case tok::plusequal:            Opc = BO_AddAssign; break;

@@ -566,9 +566,9 @@ bool Parser::ParseTopLevelDecl(DeclGroupPtrTy &Result) {
     if (NextToken().isNot(tok::kw_module))
       break;
     LLVM_FALLTHROUGH;
-  case tok::kw_module:
-    Result = ParseModuleDecl();
-    return false;
+    //case tok::kw_module:
+    //Result = ParseModuleDecl();
+    //return false;
 
   case tok::annot_module_include:
     Actions.ActOnModuleInclude(Tok.getLocation(),
@@ -772,6 +772,7 @@ Parser::ParseExternalDeclaration(ParsedAttributesWithRange &attrs,
   case tok::kw_namespace:
   case tok::kw_typedef:
   case tok::kw_template:
+  case tok::kw_module:
   case tok::kw_static_assert:
   case tok::kw__Static_assert:
     // A function definition cannot start with any of these keywords.
@@ -1882,6 +1883,7 @@ bool Parser::isTokenEqualOrEqualTypo() {
         << FixItHint::CreateReplacement(SourceRange(Tok.getLocation()), "=");
     LLVM_FALLTHROUGH;
   case tok::equal:
+  case tok::colonequal:
     return true;
   }
 }
