@@ -157,7 +157,7 @@ void CommaSeparatedList::precomputeFormattingInfos(FormatToken *Token) {
   // In C++11 braced list style, we should not format in columns unless they
   // have many items (20 or more) or we allow bin-packing of function call
   // arguments.
-  if (Style.Cpp11BracedListStyle && !Style.BinPackArguments && !Style.ExperimentalTtcnExtension &&
+  if (Style.Cpp11BracedListStyle && !Style.BinPackArguments &&
       Commas.size() < 19)
     return;
 
@@ -181,7 +181,6 @@ void CommaSeparatedList::precomputeFormattingInfos(FormatToken *Token) {
   SmallVector<unsigned, 8> EndOfLineItemLength;
 
   bool HasSeparatingComment = false;
-  bool WrapBraceAtBegining = false;
   for (unsigned i = 0, e = Commas.size() + 1; i != e; ++i) {
     // Skip comments on their own line.
     while (ItemBegin->HasUnescapedNewline && ItemBegin->isTrailingComment()) {
@@ -189,24 +188,9 @@ void CommaSeparatedList::precomputeFormattingInfos(FormatToken *Token) {
       HasSeparatingComment = i > 0;
     }
 
-    if (ItemBegin->is(tok::l_brace))
-    {
-      HasNestedBracedList = true;
-      if(i == 0)
-      {
-        if(Style.ExperimentalTtcnExtension) {
-          ItemBegin->MustBreakBefore = true;
-          WrapBraceAtBegining = true;
-          Token -> MustBreakBefore = true;
-        }
-        else {
-          if (Style.Cpp11BracedListStyle &&
-              !Style.BinPackArguments && Commas.size() < 19)
-            return;
-        }
-      }
-    }
     MustBreakBeforeItem.push_back(ItemBegin->MustBreakBefore);
+    if (ItemBegin->is(tok::l_brace))
+      HasNestedBracedList = true;
     const FormatToken *ItemEnd = nullptr;
     if (i == Commas.size()) {
       ItemEnd = Token->MatchingParen;
@@ -218,9 +202,6 @@ void CommaSeparatedList::precomputeFormattingInfos(FormatToken *Token) {
         // tokens will need to stay on a line with the last element.
         while (ItemEnd->Next && !ItemEnd->Next->CanBreakBefore)
           ItemEnd = ItemEnd->Next;
-        if (Style.ExperimentalTtcnExtension && WrapBraceAtBegining) {
-          ItemEnd->Previous->MustBreakBefore = true;
-        }
       } else {
         // In other braced lists styles, the "}" can be wrapped to the new line.
         ItemEnd = Token->MatchingParen->Previous;
