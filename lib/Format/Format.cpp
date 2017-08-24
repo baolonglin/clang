@@ -402,6 +402,7 @@ template <> struct MappingTraits<FormatStyle> {
     IO.mapOptional("TtcnExtension", Style.TtcnExtension);
     IO.mapOptional("TtcnGreedyLineFormatterFirstTokens",
                    Style.TtcnGreedyLineFormatterFirstTokens);
+    IO.mapOptional("TtcnColumnLimitTolerance", Style.TtcnColumnLimitTolerance);
     IO.mapOptional("ExperimentalTtcnExtension",
                    Style.ExperimentalTtcnExtension);
   }

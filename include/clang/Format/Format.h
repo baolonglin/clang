@@ -1482,6 +1482,10 @@ struct FormatStyle {
   /// this parameter to keep more tokens in first line.
   std::vector<std::string> TtcnGreedyLineFormatterFirstTokens;
 
+  /// \brief tolerance the line exceed the ColumnLimit
+  /// sometimes there is only several characters exceed the ColumnLimit, key them in the same line.
+  unsigned TtcnColumnLimitTolerance;
+
   /// \brief experimental ttcn extension
   /// Break the first wrap curve bracket
   bool ExperimentalTtcnExtension;

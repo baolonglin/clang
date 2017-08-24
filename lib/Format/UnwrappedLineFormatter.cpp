@@ -656,7 +656,7 @@ protected:
     // If the child line exceeds the column limit, we wouldn't want to merge it.
     // We add +2 for the trailing " }".
     if (Style.ColumnLimit > 0 &&
-        Child->Last->TotalLength + State.Column + 2 > Style.ColumnLimit)
+        Child->Last->TotalLength + State.Column + 2 > (Style.ColumnLimit + (State.ConsiderTolerance ? Style.TtcnColumnLimitTolerance : 0)))
       return false;
 
     if (!DryRun) {
@@ -719,8 +719,12 @@ public:
                       bool DryRun) override {
     unsigned Penalty = 0;
     LineState State = Indenter->getInitialState(FirstIndent, &Line, DryRun);
+    State.ConsiderTolerance = true;
     while (State.NextToken) {
       formatChildren(State, /*Newline=*/false, DryRun, Penalty);
+      if (State.NextToken->MustBreakBefore) {
+        State.ConsiderTolerance = false;
+      }
       Indenter->addTokenToState(
           State, /*Newline=*/State.NextToken->MustBreakBefore, DryRun);
     }
@@ -748,12 +752,14 @@ public:
       bool Newline = Indenter->mustBreak(State);
       if(!Newline) {
         const FormatToken &Current = *State.NextToken;
-        if (Current.Previous && Current.Previous->is(tok::comma)) {
-          unsigned totalLength = Current.TotalLength;
+        if (Current.Previous && (Current.Previous->is(tok::comma) || Current.Previous->is(tok::l_paren))) {
+          unsigned totalLength = Current.Previous->TotalLength;
           const FormatToken *Next = Current.Next;
-          while (Next && !Next->is(tok::comma)) {
-            if (Next->TotalLength - totalLength + State.Column >
-                Style.ColumnLimit) {
+          while (Next && !Next->is(tok::comma) && !Next->is(tok::r_paren) && !Next->is(tok::l_paren)) {
+            if (Next->TotalLength + Next->UnbreakableTailLength - totalLength + State.Column >
+                    Style.ColumnLimit &&
+                Line.Last->TotalLength - totalLength + State.Column >
+                    Style.ColumnLimit + Style.TtcnColumnLimitTolerance) {
               Newline = true;
               break;
             }
@@ -999,7 +1005,7 @@ UnwrappedLineFormatter::format(const SmallVectorImpl<AnnotatedLine *> &Lines,
       NextLine = Joiner.getNextMergedLine(DryRun, IndentTracker);
       unsigned ColumnLimit = getColumnLimit(TheLine.InPPDirective, NextLine);
       bool FitsIntoOneLine =
-          TheLine.Last->TotalLength + Indent <= ColumnLimit ||
+        TheLine.Last->TotalLength + Indent <= (Style.TtcnColumnLimitTolerance + ColumnLimit) ||
           (TheLine.Type == LT_ImportStatement &&
            (Style.Language != FormatStyle::LK_JavaScript ||
             !Style.JavaScriptWrapImports));

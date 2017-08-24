@@ -355,6 +355,9 @@ struct LineState {
   /// Does not need to be considered for memoization because it doesn't change.
   const AnnotatedLine *Line;
 
+  /// \brief Consider the tolerance of column limit
+  bool ConsiderTolerance;
+
   /// \brief Comparison operator to be able to used \c LineState in \c map.
   bool operator<(const LineState &Other) const {
     if (NextToken != Other.NextToken)
@@ -371,6 +374,8 @@ struct LineState {
     if (StartOfStringLiteral != Other.StartOfStringLiteral)
       return StartOfStringLiteral < Other.StartOfStringLiteral;
     if (IgnoreStackForComparison || Other.IgnoreStackForComparison)
+      return false;
+    if (ConsiderTolerance || Other.ConsiderTolerance)
       return false;
     return Stack < Other.Stack;
   }

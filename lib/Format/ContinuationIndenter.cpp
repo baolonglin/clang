@@ -103,6 +103,7 @@ LineState ContinuationIndenter::getInitialState(unsigned FirstIndent,
   State.StartOfLineLevel = 0;
   State.LowestLevelOnLine = 0;
   State.IgnoreStackForComparison = false;
+  State.ConsiderTolerance = false;
 
   if (Style.Language == FormatStyle::LK_TextProto) {
     // We need this in order to deal with the bin packing of text fields at
@@ -1417,7 +1418,7 @@ unsigned ContinuationIndenter::breakProtrudingToken(const FormatToken &Current,
 
 unsigned ContinuationIndenter::getColumnLimit(const LineState &State) const {
   // In preprocessor directives reserve two chars for trailing " \"
-  return Style.ColumnLimit - (State.Line->InPPDirective ? 2 : 0);
+  return Style.ColumnLimit + (State.ConsiderTolerance ? Style.TtcnColumnLimitTolerance : 0) - (State.Line->InPPDirective ? 2 : 0);
 }
 
 bool ContinuationIndenter::nextIsMultilineString(const LineState &State) {
