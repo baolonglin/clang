@@ -400,6 +400,8 @@ template <> struct MappingTraits<FormatStyle> {
     IO.mapOptional("TabWidth", Style.TabWidth);
     IO.mapOptional("UseTab", Style.UseTab);
     IO.mapOptional("TtcnExtension", Style.TtcnExtension);
+    IO.mapOptional("TtcnGreedyLineFormatterFirstTokens",
+                   Style.TtcnGreedyLineFormatterFirstTokens);
     IO.mapOptional("ExperimentalTtcnExtension",
                    Style.ExperimentalTtcnExtension);
   }

@@ -1477,6 +1477,11 @@ struct FormatStyle {
   /// break the Character constants meaning('), use it as String Literals, support string suffix 'B, 'O, 'H
   bool TtcnExtension;
 
+  /// \brief greedy line formatter for ttcn language
+  /// In many ttcn code use vg_iscSessions as the begin of message send/receive, configure
+  /// this parameter to keep more tokens in first line.
+  std::vector<std::string> TtcnGreedyLineFormatterFirstTokens;
+
   /// \brief experimental ttcn extension
   /// Break the first wrap curve bracket
   bool ExperimentalTtcnExtension;

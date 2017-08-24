@@ -586,7 +586,7 @@ public:
   LineFormatter(ContinuationIndenter *Indenter, WhitespaceManager *Whitespaces,
                 const FormatStyle &Style,
                 UnwrappedLineFormatter *BlockFormatter)
-      : Indenter(Indenter), Whitespaces(Whitespaces), Style(Style),
+      : Indenter(Indenter), Style(Style), Whitespaces(Whitespaces),
         BlockFormatter(BlockFormatter) {}
   virtual ~LineFormatter() {}
 
@@ -671,10 +671,10 @@ protected:
   }
 
   ContinuationIndenter *Indenter;
+  const FormatStyle &Style;
 
 private:
   WhitespaceManager *Whitespaces;
-  const FormatStyle &Style;
   UnwrappedLineFormatter *BlockFormatter;
 };
 
@@ -728,6 +728,46 @@ public:
   }
 };
 
+/// \brief Formatter that puts all tokens into a single line as more as possible
+class GreedyLineFormatter : public LineFormatter {
+public:
+  GreedyLineFormatter(ContinuationIndenter *Indenter,
+                             WhitespaceManager *Whitespaces,
+                             const FormatStyle &Style,
+                             UnwrappedLineFormatter *BlockFormatter)
+      : LineFormatter(Indenter, Whitespaces, Style, BlockFormatter) {}
+
+  /// \brief Formats the line, simply keeping all of the input's line breaking
+  /// decisions.
+  unsigned formatLine(const AnnotatedLine &Line, unsigned FirstIndent,
+                      bool DryRun) override {
+    assert(!DryRun);
+    LineState State =
+        Indenter->getInitialState(FirstIndent, &Line, /*DryRun=*/false);
+    while (State.NextToken) {
+      bool Newline = Indenter->mustBreak(State);
+      if(!Newline) {
+        const FormatToken &Current = *State.NextToken;
+        if (Current.Previous && Current.Previous->is(tok::comma)) {
+          unsigned totalLength = Current.TotalLength;
+          const FormatToken *Next = Current.Next;
+          while (Next && !Next->is(tok::comma)) {
+            if (Next->TotalLength - totalLength + State.Column >
+                Style.ColumnLimit) {
+              Newline = true;
+              break;
+            }
+            Next = Next->Next;
+          }
+        }
+      }
+      unsigned Penalty = 0;
+      formatChildren(State, Newline, /*DryRun=*/false, Penalty);
+      Indenter->addTokenToState(State, Newline, /*DryRun=*/false);
+    }
+    return 0;
+  }
+};
 /// \brief Finds the best way to break lines.
 class OptimizingLineFormatter : public LineFormatter {
 public:
@@ -970,6 +1010,9 @@ UnwrappedLineFormatter::format(const SmallVectorImpl<AnnotatedLine *> &Lines,
       else if (FitsIntoOneLine)
         Penalty += NoLineBreakFormatter(Indenter, Whitespaces, Style, this)
                        .formatLine(TheLine, Indent, DryRun);
+      else if (std::find(Style.TtcnGreedyLineFormatterFirstTokens.begin(), Style.TtcnGreedyLineFormatterFirstTokens.end(), TheLine.First->TokenText.str()) != Style.TtcnGreedyLineFormatterFirstTokens.end())
+        Penalty += GreedyLineFormatter(Indenter, Whitespaces, Style, this)
+            .formatLine(TheLine, Indent, DryRun);
       else
         Penalty += OptimizingLineFormatter(Indenter, Whitespaces, Style, this)
                        .formatLine(TheLine, Indent, DryRun);

@@ -831,10 +831,10 @@ Parser::ParseExternalDeclaration(ParsedAttributesWithRange &attrs,
     ParseMicrosoftIfExistsExternalDeclaration();
     return nullptr;
 
-  case tok::kw_module:
-    Diag(Tok, diag::err_unexpected_module_decl);
-    SkipUntil(tok::semi);
-    return nullptr;
+    //case tok::kw_module:
+    //Diag(Tok, diag::err_unexpected_module_decl);
+    //SkipUntil(tok::semi);
+    //return nullptr;
 
   default:
   dont_know:
