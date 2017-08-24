@@ -2717,6 +2717,11 @@ bool TokenAnnotator::canBreakBefore(const AnnotatedLine &Line,
       return true;
   }
 
+  if (Style.TtcnExtension) {
+    if (Left.is(tok::colonequal) && Right.is(tok::l_brace))
+      return false;
+  }
+
   if (Left.is(tok::at))
     return false;
   if (Left.Tok.getObjCKeywordID() == tok::objc_interface)
