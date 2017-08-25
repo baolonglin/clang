@@ -751,10 +751,10 @@ public:
     while (State.NextToken) {
       bool Newline = Indenter->mustBreak(State);
       if(!Newline) {
-        const FormatToken &Current = *State.NextToken;
-        if (Current.Previous && (Current.Previous->is(tok::comma) || Current.Previous->is(tok::l_paren))) {
-          unsigned totalLength = Current.Previous->TotalLength;
-          const FormatToken *Next = Current.Next;
+        const FormatToken *Previous = State.NextToken->Previous;
+        if (Previous && (Previous->is(tok::comma) || Previous->is(tok::l_paren))) {
+          unsigned totalLength = Previous->TotalLength;
+          const FormatToken *Next = State.NextToken;
           while (Next && !Next->is(tok::comma) && !Next->is(tok::r_paren) && !Next->is(tok::l_paren)) {
             if (Next->TotalLength + Next->UnbreakableTailLength - totalLength + State.Column >
                     Style.ColumnLimit &&

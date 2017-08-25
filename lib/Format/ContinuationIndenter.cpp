@@ -950,8 +950,24 @@ unsigned ContinuationIndenter::moveStateToNextToken(LineState &State,
   if (CanBreakProtrudingToken)
     Penalty = breakProtrudingToken(Current, State, DryRun);
   if (State.Column > getColumnLimit(State)) {
+    bool ConsiderToleranceTemporary = false;
+    if (Style.TtcnExtension && Style.TtcnColumnLimitTolerance > 0 && !State.ConsiderTolerance) {
+      const FormatToken *Last = &Current;
+      while (Last->Next) {
+        Last = Last->Next;
+      }
+      ConsiderToleranceTemporary = true;
+      State.ConsiderTolerance = true;
+      if (Last->TotalLength - Current.TotalLength + State.Column > getColumnLimit(State)) {
+        State.ConsiderTolerance = false;
+        ConsiderToleranceTemporary = false;
+      }
+    }
     unsigned ExcessCharacters = State.Column - getColumnLimit(State);
     Penalty += Style.PenaltyExcessCharacter * ExcessCharacters;
+    if (ConsiderToleranceTemporary) {
+      State.ConsiderTolerance = false;
+    }
   }
 
   if (Current.Role)
