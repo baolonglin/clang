@@ -1957,6 +1957,9 @@ void TokenAnnotator::calculateFormattingInformation(AnnotatedLine &Line) {
     // FIXME: Move magic numbers to a better place.
     Current->SplitPenalty = 20 * Current->BindingStrength +
                             splitPenalty(Line, *Current, InFunctionDecl);
+    if(Style.TtcnExtension && Current->NestingLevel > 1) {
+      Current->SplitPenalty += Current->NestingLevel * Style.TtcnColumnLimitTolerance * Style.PenaltyExcessCharacter;
+    }
 
     Current = Current->Next;
   }
